@@ -106,11 +106,11 @@ set(FORMS_UI
   ./bt_editor/custom_node_dialog.ui
   )
 
-find_package(ZMQ)
+find_package(ZeroMQ)
 
-if( ZMQ_FOUND )
+if( ZeroMQ_FOUND )
     message(STATUS "ZeroMQ found.")
-    add_definitions( -DZMQ_FOUND )
+    add_definitions( -DZeroMQ_FOUND )
 
     set(APP_CPPS ${APP_CPPS} ./bt_editor/sidepanel_monitor.cpp )
     set(FORMS_UI ${FORMS_UI} ./bt_editor/sidepanel_monitor.ui )
@@ -134,7 +134,7 @@ else()
     SET(GROOT_DEPENDENCIES ${GROOT_DEPENDENCIES} behaviortree_cpp_v3 )
 endif()
 
-if( ZMQ_FOUND )
+if( ZeroMQ_FOUND )
     SET(GROOT_DEPENDENCIES ${GROOT_DEPENDENCIES} zmq)
 endif()
 
