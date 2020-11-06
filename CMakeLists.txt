@@ -136,7 +136,7 @@ else()
 endif()
 
 if( ZeroMQ_FOUND )
-    SET(GROOT_DEPENDENCIES ${GROOT_DEPENDENCIES} zmq)
+    SET(GROOT_DEPENDENCIES ${GROOT_DEPENDENCIES})
 endif()
 
 target_link_libraries(behavior_tree_editor ${GROOT_DEPENDENCIES} )

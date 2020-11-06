@@ -40,7 +40,7 @@ FlowView(QWidget *parent)
   setBackgroundBrush(flowViewStyle.BackgroundColor);
 
   setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-  //setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
+  //setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -50,6 +50,9 @@ FlowView(QWidget *parent)
   setCacheMode(QGraphicsView::CacheBackground);
 
   //setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+  //setViewport(new QOpenGLWidget());
+
+
 }
 
 
