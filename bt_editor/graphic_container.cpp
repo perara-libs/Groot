@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QInputDialog>
+#include <QThread>
 
 using namespace QtNodes;
 
@@ -21,6 +22,10 @@ GraphicContainer::GraphicContainer(std::shared_ptr<DataModelRegistry> model_regi
     _signal_was_blocked(true)
 {
     _scene = new EditorFlowScene( _model_registry, parent );
+
+
+
+
     _view  = new QtNodes::FlowView( _scene, parent );
 
     connect( _scene, &QtNodes::FlowScene::nodeDoubleClicked,

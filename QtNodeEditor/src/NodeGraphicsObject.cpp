@@ -168,7 +168,6 @@ paint(QPainter * painter,
       QWidget* )
 {
   painter->setClipRect(option->exposedRect);
-
   NodePainter::paint(painter, _node, _scene);
 }
 
