@@ -22,10 +22,7 @@
 #include "sidepanel_monitor.h"
 #endif
 
-namespace Ui {
-class MainWindow;
-}
-
+#include "ui_mainwindow.h"
 namespace QtNodes{
 class FlowView;
 class FlowScene;
@@ -130,7 +127,7 @@ private slots:
 
     void on_actionReportIssue_triggered();
 
-private:
+public:
 
     void updateCurrentMode();
 

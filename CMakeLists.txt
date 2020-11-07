@@ -48,6 +48,8 @@ set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 INCLUDE_DIRECTORIES( ${catkin_INCLUDE_DIRS} ./QtNodeEditor/include ./  )
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+message(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory( QtNodeEditor )
 
@@ -83,6 +85,7 @@ set(APP_CPPS
     ./bt_editor/bt_editor_base.cpp
     ./bt_editor/graphic_container.cpp
     ./bt_editor/startup_dialog.cpp
+    ./bt_editor/bt_zmq_publisher.cpp
 
     ./bt_editor/sidepanel_editor.cpp
     ./bt_editor/sidepanel_replay.cpp
@@ -140,7 +143,7 @@ if( ZeroMQ_FOUND )
 endif()
 
 target_link_libraries(behavior_tree_editor ${GROOT_DEPENDENCIES} )
-
+target_include_directories(behavior_tree_editor PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(Groot ./bt_editor/main.cpp  ${RESOURCE_FILES})
 target_link_libraries(Groot behavior_tree_editor )
