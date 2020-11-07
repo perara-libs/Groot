@@ -179,76 +179,54 @@ bool SidepanelMonitor::getTreeFromServer()
     return true;
 }
 
+bool SidepanelMonitor::tryConnect() {
+    if (_connected) {
+        return true;
+    }
+       
+
+    QString address = (!ui->lineEdit->text().isEmpty()) ? ui->lineEdit->text() : ui->lineEdit->placeholderText();
+    QString publisherPort = (!ui->lineEdit_publisher->text().isEmpty()) ? ui->lineEdit_publisher->text() : ui->lineEdit_publisher->placeholderText();
+    QString serverPort = (!ui->lineEdit_server->text().isEmpty()) ? ui->lineEdit_server->text() : ui->lineEdit_server->placeholderText();
+
+    if (address.isEmpty() || serverPort.isEmpty() || publisherPort.isEmpty()) {
+        return false;
+    }
+
+    _connection_address_pub = "tcp://" + address.toStdString() + ":" + publisherPort.toStdString();
+    _connection_address_req = "tcp://" + address.toStdString() + ":" + serverPort.toStdString();
+
+    try{
+        _zmq_subscriber.connect( _connection_address_pub.c_str() );
+        int timeout_ms = 1;
+        _zmq_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
+        _zmq_subscriber.setsockopt(ZMQ_RCVTIMEO,&timeout_ms, sizeof(int) );
+        _connected = true;
+        return true;
+    }catch(zmq::error_t& err){
+        _connected = false;
+        return false;
+    }
+}
+
+bool SidepanelMonitor::isConnected() {
+    return _connected;
+}
+
+
 void SidepanelMonitor::on_Connect()
 {
-    if( !_connected)
-    {
-        QString address = ui->lineEdit->text();
-        if( address.isEmpty() )
-        {
-            address = ui->lineEdit->placeholderText();
-            ui->lineEdit->setText(address);
-        }
-
-        QString publisher_port = ui->lineEdit_publisher->text();
-        if( publisher_port.isEmpty() )
-        {
-            publisher_port = ui->lineEdit_publisher->placeholderText();
-            ui->lineEdit_publisher->setText(publisher_port);
-        }
-
-        QString server_port = ui->lineEdit_server->text();
-        if( server_port.isEmpty() )
-        {
-          publisher_port = ui->lineEdit_server->placeholderText();
-          ui->lineEdit_server->setText(publisher_port);
-        }
-
-        bool failed = false;
-        if( !address.isEmpty() )
-        {
-            _connection_address_pub = "tcp://" + address.toStdString() + ":" + publisher_port.toStdString();
-            _connection_address_req = "tcp://" + address.toStdString() + ":" + server_port.toStdString();
-
-            try{
-                _zmq_subscriber.connect( _connection_address_pub.c_str() );
-
-                int timeout_ms = 1;
-                _zmq_subscriber.setsockopt(ZMQ_SUBSCRIBE, "", 0);
-                _zmq_subscriber.setsockopt(ZMQ_RCVTIMEO,&timeout_ms, sizeof(int) );
-
-                if( !getTreeFromServer() )
-                {
-                    failed = true;
-                    _connected = false;
-                }
-            }
-            catch(zmq::error_t& err)
-            {
-                failed = true;
-            }
-        }
-        else {
-            failed = true;
-        }
-
-        if( !failed )
-        {
-            _connected = true;
-            ui->lineEdit->setDisabled(true);
-            ui->lineEdit_publisher->setDisabled(true);
-            _timer->start(20);
-            connectionUpdate(true);
-        }
-        else{
-            QMessageBox::warning(this,
-                                 tr("ZeroMQ connection"),
-                                 tr("Was not able to connect to [%1]\n").arg(_connection_address_pub.c_str()),
-                                 QMessageBox::Close);
-        }
+    if (tryConnect() && getTreeFromServer()){
+        ui->lineEdit->setDisabled(true);
+        ui->lineEdit_publisher->setDisabled(true);
+        _timer->start(20);
+        connectionUpdate(true);
     }
-    else{
-        _connected = false;
+    else {
+        QMessageBox::warning(this,
+            tr("ZeroMQ connection"),
+            tr("Was not able to connect to [%1]\n").arg(_connection_address_pub.c_str()),
+            QMessageBox::Close);
         ui->lineEdit->setDisabled(false);
         ui->lineEdit_publisher->setDisabled(false);
         _timer->stop();

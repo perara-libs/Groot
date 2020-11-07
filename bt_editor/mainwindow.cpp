@@ -1493,6 +1493,9 @@ void MainWindow::resetTreeStyle(AbsBehaviorTree &tree){
 void MainWindow::onChangeNodesStatus(const QString& bt_name,
                                      const std::vector<std::pair<int, NodeStatus> > &node_status)
 {
+    
+    // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+    return;
     auto tree = BuildTreeFromScene( getTabByName(bt_name)->scene() );
 
     std::vector<NodeStatus> vec_last_status(tree.nodesCount());

@@ -19,6 +19,9 @@ public:
     ~SidepanelMonitor();
 
     void clear();
+    bool tryConnect();
+    bool isConnected();
+
 
 public slots:
 

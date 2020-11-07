@@ -46,9 +46,9 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
     capt_font.setPointSize(12);
     _caption_label->setFont(capt_font);
 
-    capt_layout->addWidget(_caption_logo_left, 0, Qt::AlignRight);
-    capt_layout->addWidget(_caption_label, 0, Qt::AlignHCenter );
-    capt_layout->addWidget(_caption_logo_right, 0, Qt::AlignLeft);
+    //capt_layout->addWidget(_caption_logo_left, 0, Qt::AlignRight);
+    //capt_layout->addWidget(_caption_label, 0, Qt::AlignHCenter );
+   // capt_layout->addWidget(_caption_logo_right, 0, Qt::AlignLeft);
 
     _main_layout->addLayout( capt_layout );
     _main_layout->addWidget( _line_edit_name );
@@ -71,7 +71,7 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
     _form_layout = new QFormLayout( _params_widget );
     _form_layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    _main_layout->addWidget(_params_widget);
+    //_main_layout->addWidget(_params_widget);
     _params_widget->setStyleSheet("color: white;");
 
     _form_layout->setHorizontalSpacing(4);
@@ -480,7 +480,7 @@ bool BehaviorTreeDataModel::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::Paint && obj == _caption_logo_left && _icon_renderer)
     {
         QPainter paint(_caption_logo_left);
-        //_icon_renderer->render(&paint);
+        _icon_renderer->render(&paint);
     }
     return NodeDataModel::eventFilter(obj, event);
 }
