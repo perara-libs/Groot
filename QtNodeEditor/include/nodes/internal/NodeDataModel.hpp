@@ -121,7 +121,7 @@ signals:
 
   void embeddedWidgetSizeUpdated();
 
-private:
+protected:
 
   NodeStyle _nodeStyle;
 };

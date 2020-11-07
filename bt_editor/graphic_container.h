@@ -81,14 +81,10 @@ signals:
 private:
     EditorFlowScene* _scene;
     QtNodes::FlowView*  _view;
-
     void createMorphSubMenu(QtNodes::Node &node, QMenu *nodeMenu);
-
-   void createSmartRemoveAction(QtNodes::Node &node, QMenu *nodeMenu);
-
-   void insertNodeInConnection(QtNodes::Connection &connection, QString node_name);
-
-   void recursiveLoadStep(QPointF &cursor, AbsBehaviorTree &tree,
+    void createSmartRemoveAction(QtNodes::Node &node, QMenu *nodeMenu);
+    void insertNodeInConnection(QtNodes::Connection &connection, QString node_name);
+    void recursiveLoadStep(QPointF &cursor, AbsBehaviorTree &tree,
                           AbstractTreeNode *abs_node,
                           QtNodes::Node* parent_node, int nest_level);
 

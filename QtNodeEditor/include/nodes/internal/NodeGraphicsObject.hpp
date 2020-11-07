@@ -99,6 +99,7 @@ private:
   bool _locked;
 
   bool _double_clicked;
+  bool _hasProxy = false;
 
   // either nullptr or owned by parent QGraphicsItem
   QGraphicsProxyWidget * _proxyWidget;

@@ -27,13 +27,13 @@ class BehaviorTreeDataModel : public NodeDataModel
     Q_OBJECT
 
 public:
-    BehaviorTreeDataModel(const NodeModel &model );
+    explicit BehaviorTreeDataModel(const NodeModel &model );
 
     ~BehaviorTreeDataModel() override;
 
 public:
 
-    NodeType nodeType() const;
+    [[nodiscard]] NodeType nodeType() const;
 
     virtual void setInstanceName(const QString& name);
 
@@ -43,29 +43,29 @@ public:
 
     virtual unsigned int nPorts(PortType portType) const override;
 
-    ConnectionPolicy portOutConnectionPolicy(PortIndex) const final;
+    [[nodiscard]] ConnectionPolicy portOutConnectionPolicy(PortIndex) const final;
 
-    NodeDataType dataType(PortType , PortIndex ) const final;
+    [[nodiscard]] NodeDataType dataType(PortType , PortIndex ) const final;
 
     std::shared_ptr<NodeData> outData(PortIndex port) final;
 
     void setInData(std::shared_ptr<NodeData>, int) final {}
 
-    const QString &registrationName() const;
+    [[nodiscard]] const QString &registrationName() const;
 
-    const NodeModel &model() const { return _model; }
+    [[nodiscard]] const NodeModel &model() const { return _model; }
 
-    QString name() const final { return registrationName(); }
+    [[nodiscard]] QString name() const final { return registrationName(); }
 
-    const QString& instanceName() const;
+    [[nodiscard]] const QString& instanceName() const;
 
-    PortsMapping getCurrentPortMapping() const;
+    [[nodiscard]] PortsMapping getCurrentPortMapping() const;
 
     QWidget *embeddedWidget() final { return _main_widget; }
 
     QWidget *parametersWidget() { return _params_widget; }
 
-    QJsonObject save() const override;
+    [[nodiscard]] QJsonObject save() const override;
 
     void restore(QJsonObject const &) override;
 
@@ -73,7 +73,7 @@ public:
 
     void setPortMapping(const QString& port_name, const QString& value);
 
-    int UID() const { return _uid; }
+    [[nodiscard]] int UID() const { return _uid; }
 
     bool eventFilter(QObject *obj, QEvent *event) override;
 
@@ -85,6 +85,8 @@ public slots:
     void onHighlightPortValue(QString value);
 
 protected:
+
+    void loadInteractive();
 
     QFrame*  _main_widget;
     QFrame*  _params_widget;
@@ -113,10 +115,9 @@ private:
 signals:
 
     void parameterUpdated(QString, QWidget*);
-
     void instanceNameChanged();
-
     void portValueDoubleChicked(QLineEdit* value_port);
+
 
 };
 
@@ -125,7 +126,7 @@ class GrootLineEdit: public QLineEdit
 {
     Q_OBJECT
 public:
-    GrootLineEdit(QWidget* parent = nullptr): QLineEdit(parent) {}
+    explicit GrootLineEdit(QWidget* parent = nullptr): QLineEdit(parent) {}
 
     void mouseDoubleClickEvent(QMouseEvent *ev) override;
     void focusOutEvent(QFocusEvent* ev) override;

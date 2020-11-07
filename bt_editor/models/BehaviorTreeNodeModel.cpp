@@ -1,14 +1,11 @@
 #include "BehaviorTreeNodeModel.hpp"
-#include <QBoxLayout>
 #include <QFormLayout>
-#include <QSizePolicy>
 #include <QLineEdit>
 #include <QComboBox>
-#include <QDebug>
 #include <QFile>
-#include <QFont>
 #include <QApplication>
 #include <QJsonDocument>
+#include <QBitmap>
 
 const int MARGIN = 10;
 const int DEFAULT_LINE_WIDTH  = 100;
@@ -17,15 +14,38 @@ const int DEFAULT_LABEL_WIDTH = 50;
 
 BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
     _params_widget(nullptr),
-    _uid( GetUID() ),
+    _uid(GetUID()),
     _model(model),
     _icon_renderer(nullptr),
     _style_caption_color( QtNodes::NodeStyle().FontColor ),
     _style_caption_alias( model.registration_ID )
 {
+    loadInteractive();
+
+    // Load the icon
+    QSvgRenderer svgRenderer(_style_icon);
+
+    QPixmap pix(svgRenderer.defaultSize());
+    pix.fill( Qt::transparent );
+    pix.setMask( pix.createMaskFromColor(_style_caption_color ) );
+    QPainter pixPainter( &pix );
+    svgRenderer.render( &pixPainter );
+
+    pixPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    pixPainter.fillRect(pix.rect(), _style_caption_color);
+
+    this->_nodeStyle.LeftIcon = pix.scaled(24, 24);
+
+
+}
+
+
+void BehaviorTreeDataModel::loadInteractive(){
     readStyle();
+
     _main_widget = new QFrame();
     _line_edit_name = new QLineEdit(_main_widget);
+
     _params_widget = new QFrame();
 
     _main_layout = new QVBoxLayout(_main_widget);
@@ -46,9 +66,9 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
     capt_font.setPointSize(12);
     _caption_label->setFont(capt_font);
 
-    //capt_layout->addWidget(_caption_logo_left, 0, Qt::AlignRight);
-    //capt_layout->addWidget(_caption_label, 0, Qt::AlignHCenter );
-   // capt_layout->addWidget(_caption_logo_right, 0, Qt::AlignLeft);
+    capt_layout->addWidget(_caption_logo_left, 0, Qt::AlignRight);
+    capt_layout->addWidget(_caption_label, 0, Qt::AlignHCenter );
+    capt_layout->addWidget(_caption_logo_right, 0, Qt::AlignLeft);
 
     _main_layout->addLayout( capt_layout );
     _main_layout->addWidget( _line_edit_name );
@@ -82,11 +102,11 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
                                               PortDirection::OUTPUT,
                                               PortDirection::INOUT};
 
-    for(int pref_index=0; pref_index < 3; pref_index++)
+
+    for(auto preferred_direction : preferred_port_types)
     {
-        for(const auto& port_it: model.ports )
+        for(const auto& port_it: _model.ports )
         {
-            auto preferred_direction = preferred_port_types[pref_index];
             if( port_it.second.direction != preferred_direction )
             {
                 continue;
@@ -94,9 +114,11 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
 
             QString description = port_it.second.description;
             QString label = port_it.first;
+            QString direction;
             if( preferred_direction == PortDirection::INPUT)
             {
                 label.prepend("[IN] ");
+                direction = "[IN]: ";
                 if( description.isEmpty())
                 {
                     description="[INPUT]";
@@ -107,6 +129,7 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
             }
             else if( preferred_direction == PortDirection::OUTPUT){
                 label.prepend("[OUT] ");
+                direction = "[OUT]: ";
                 if( description.isEmpty())
                 {
                     description="[OUTPUT]";
@@ -116,7 +139,10 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
                 }
             }
 
-            GrootLineEdit* form_field = new GrootLineEdit();
+            _nodeStyle.Descriptions
+            .emplace_back(direction + port_it.first + ": [" + port_it.second.default_value + "]");
+
+            auto* form_field = new GrootLineEdit();
             form_field->setAlignment( Qt::AlignHCenter);
             form_field->setMaximumWidth(140);
             form_field->setText( port_it.second.default_value );
@@ -129,7 +155,7 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
                     this, [this]()
                     { emit this->portValueDoubleChicked(nullptr); });
 
-            QLabel* form_label  =  new QLabel( label, _params_widget );
+            auto* form_label  =  new QLabel( label, _params_widget );
             form_label->setStyleSheet("QToolTip {color: black;}");
             form_label->setToolTip( description );
 
@@ -168,10 +194,12 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
     //--------------------------------------
     connect( _line_edit_name, &QLineEdit::editingFinished,
              this, [this]()
-    {
-        setInstanceName( _line_edit_name->text() );
-    });
+             {
+                 setInstanceName( _line_edit_name->text() );
+             });
 }
+
+
 
 BehaviorTreeDataModel::~BehaviorTreeDataModel()
 {

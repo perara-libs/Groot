@@ -41,8 +41,6 @@ NodeGraphicsObject(FlowScene &scene,
     ItemIsSelectable |
     ItemSendsScenePositionChanges
   );
-
-
     setCacheMode( QGraphicsItem::CacheMode::DeviceCoordinateCache );
 
     auto const &nodeStyle = node.nodeDataModel()->nodeStyle();
@@ -54,7 +52,11 @@ NodeGraphicsObject(FlowScene &scene,
     setOpacity(nodeStyle.Opacity);
     setAcceptHoverEvents(true);
     setZValue(0);
-    updateEmbeddedQWidget();
+
+    if(_hasProxy){
+        updateEmbeddedQWidget();
+    }
+
 }
 
 NodeGraphicsObject::

@@ -37,6 +37,7 @@ NodeGeometry(std::unique_ptr<NodeDataModel> const &dataModel)
   QFont f;
   f.setPointSize(12);
   _boldFontMetrics = QFontMetrics(f);
+
 }
 
 unsigned int

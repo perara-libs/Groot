@@ -68,5 +68,9 @@ public:
                      NodeGeometry const & geom,
                      NodeDataModel const * model,
                      NodeGraphicsObject const & graphicsObject);
+
+    static void
+    drawNodeLabels(QPainter *pPainter, const NodeGeometry &geometry, const NodeState &state,
+                   const NodeDataModel *pModel);
 };
 }

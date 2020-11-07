@@ -1,10 +1,9 @@
 #pragma once
 
 #include <QtGui/QColor>
-
 #include "Export.hpp"
 #include "Style.hpp"
-
+#include <QPixmap>
 namespace QtNodes
 {
 
@@ -13,7 +12,6 @@ class NODE_EDITOR_PUBLIC NodeStyle : public Style
 public:
 
   NodeStyle();
-
   NodeStyle(QString jsonText);
 
 public:
@@ -30,27 +28,30 @@ private:
 
 public:
 
-  QColor NormalBoundaryColor;
-  QColor SelectedBoundaryColor;
-  QColor GradientColor0;
-  QColor GradientColor1;
-  QColor GradientColor2;
-  QColor GradientColor3;
-  QColor ShadowColor;
-  QColor FontColor;
-  QColor FontColorFaded;
+    std::vector<QString> Descriptions;
+    QPixmap LeftIcon;
+    QPixmap RightIcon;
+    QColor NormalBoundaryColor;
+    QColor SelectedBoundaryColor;
+    QColor GradientColor0;
+    QColor GradientColor1;
+    QColor GradientColor2;
+    QColor GradientColor3;
+    QColor ShadowColor;
+    QColor FontColor;
+    QColor FontColorFaded;
 
-  QColor ConnectionPointColor;
-  QColor FilledConnectionPointColor;
+    QColor ConnectionPointColor;
+    QColor FilledConnectionPointColor;
 
-  QColor WarningColor;
-  QColor ErrorColor;
+    QColor WarningColor;
+    QColor ErrorColor;
 
-  float PenWidth;
-  float HoveredPenWidth;
+    float PenWidth;
+    float HoveredPenWidth;
 
-  float ConnectionPointDiameter;
+    float ConnectionPointDiameter;
 
-  float Opacity;
+    float Opacity;
 };
 }

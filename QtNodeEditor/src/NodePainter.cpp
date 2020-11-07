@@ -13,7 +13,7 @@
 #include "Node.hpp"
 #include "FlowScene.hpp"
 #include <QSvgRenderer>
-
+#include <QtGui/QImageReader>
 using QtNodes::NodePainter;
 using QtNodes::NodeGeometry;
 using QtNodes::NodeGraphicsObject;
@@ -34,6 +34,7 @@ paint(QPainter* painter,
 
   NodeGraphicsObject const & graphicsObject = node.nodeGraphicsObject();
 
+
   geom.recalculateSize(painter->font());
 
   //--------------------------------------------
@@ -46,6 +47,8 @@ paint(QPainter* painter,
   drawFilledConnectionPoints(painter, geom, state, model);
 
   drawEntryLabels(painter, geom, state, model);
+
+  drawNodeLabels(painter, geom, state, model);
 
   drawResizeRect(painter, geom, model);
 
@@ -242,7 +245,7 @@ drawEntryLabels(QPainter * painter,
 
   for(PortType portType: {PortType::Out, PortType::In})
   {
-    auto const &nodeStyle = model->nodeStyle();
+    auto &nodeStyle = model->nodeStyle();
 
     auto& entries = state.getEntries(portType);
 
@@ -366,3 +369,59 @@ drawValidationRect(QPainter * painter,
     painter->drawText(position, errorMsg);
   }
 }
+
+
+void QtNodes::NodePainter::drawNodeLabels(QPainter *painter, const NodeGeometry &geom, const NodeState &state,
+                                          const NodeDataModel *model) {
+    NodeStyle const& nodeStyle = model->nodeStyle();
+
+    auto f = painter->font();
+    painter->setFont(f);
+    painter->setPen(nodeStyle.FontColor);
+    QFontMetrics metrics(f);
+
+    auto titleRect = metrics.boundingRect(model->name());
+
+
+    int baseX = (geom.width() - titleRect.width()) / 2.0;
+    int baseY = (nodeStyle.Descriptions.empty()) ? (geom.height() / 2.0) : (geom.height() / 4.0);
+    int titleX = baseX;
+    int titleY = baseY;
+    int iconX = titleX - nodeStyle.LeftIcon.width() - 5;
+    int iconY = titleY - (nodeStyle.LeftIcon.height() / 2) - (titleRect.height() / 2) ;
+    //int descX = 10;
+    int descY = titleY + 10;
+
+    // ICON
+    if(!nodeStyle.LeftIcon.isNull()){
+        painter->drawPixmap(iconX, iconY, nodeStyle.LeftIcon);
+    }
+
+    // TITLE
+    QPointF position(titleX, titleY);
+    painter->drawText(position, model->name());
+
+    // DESCRIPTION
+    int i = 0;
+    int spacing = 5;
+    for(auto &desc : nodeStyle.Descriptions){
+        auto rectDesc = metrics.boundingRect(desc);
+        painter->drawText(
+                (geom.width() - rectDesc.width()) / 2.0,
+                descY + (rectDesc.height() * i++) + spacing,   desc);
+
+    }
+
+
+
+
+
+
+
+}
+
+QtNodes::NodePainter::NodePainter() {
+
+}
+
+
