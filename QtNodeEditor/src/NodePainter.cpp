@@ -383,12 +383,12 @@ void QtNodes::NodePainter::drawNodeLabels(QPainter *painter, const NodeGeometry 
     auto titleRect = metrics.boundingRect(model->name());
 
 
-    int baseX = (geom.width() - titleRect.width()) / 2.0;
+    int baseX = (geom.width() - titleRect.width() - nodeStyle.LeftIcon.width()) / 2.0;
     int baseY = (nodeStyle.Descriptions.empty()) ? (geom.height() / 2.0) : (geom.height() / 4.0);
-    int titleX = baseX;
+    int titleX = baseX + nodeStyle.LeftIcon.width();
     int titleY = baseY;
-    int iconX = titleX - nodeStyle.LeftIcon.width() - 5;
-    int iconY = titleY - (nodeStyle.LeftIcon.height() / 2) - (titleRect.height() / 2) ;
+    int iconX = baseX;
+    int iconY = titleY - (nodeStyle.LeftIcon.height() / 2)  -  (titleRect.height() / 4) ;
     //int descX = 10;
     int descY = titleY + 10;
 
