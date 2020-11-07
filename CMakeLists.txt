@@ -148,7 +148,9 @@ target_include_directories(behavior_tree_editor PUBLIC ${CMAKE_CURRENT_BINARY_DI
 add_executable(Groot ./bt_editor/main.cpp  ${RESOURCE_FILES})
 target_link_libraries(Groot behavior_tree_editor )
 
-add_subdirectory(test)
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()
 
 ######################################################
 # INSTALL

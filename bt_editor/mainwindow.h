@@ -68,7 +68,7 @@ public slots:
 
     void onRedoInvoked();
 
-    void onConnectionUpdate(bool connected);
+    void onConnectionUpdate(bool connected) const;
 
     void onRequestSubTreeExpand(GraphicContainer& container,
                                 QtNodes::Node& node);
@@ -77,7 +77,7 @@ public slots:
 
     void onDestroySubTree(const QString &ID);
 
-    void onModelRemoveRequested(QString ID);
+    void onModelRemoveRequested(const QString& ID);
 
     virtual void closeEvent(QCloseEvent *event) override;
 
@@ -111,7 +111,7 @@ public slots:
 
     void on_actionClear_triggered();
 
-    void onTreeNodeEdited(QString prev_ID, QString new_ID);
+    void onTreeNodeEdited(const QString& prev_ID, const QString& new_ID);
 
     void onTabCustomContextMenuRequested(const QPoint &pos);
 
@@ -160,7 +160,7 @@ public:
         bool operator !=( const SavedState& other) const { return !( *this == other); }
     };
 
-    void loadSavedStateFromJson(SavedState state);
+    void loadSavedStateFromJson(const SavedState& state);
 
     QtNodes::Node *subTreeExpand(GraphicContainer& container,
                        QtNodes::Node &node,

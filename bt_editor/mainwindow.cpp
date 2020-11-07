@@ -10,7 +10,6 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QToolButton>
-#include <QWidgetAction>
 #include <QTreeWidgetItem>
 #include <QSvgWidget>
 #include <QShortcut>
@@ -29,8 +28,6 @@
 
 #include "models/RootNodeModel.hpp"
 #include "models/SubtreeNodeModel.hpp"
-
-#include "utils.h"
 
 #include "ui_about_dialog.h"
 
@@ -120,10 +117,10 @@ MainWindow::MainWindow(GraphicMode initial_mode, QWidget *parent) :
     ui->splitter->setStretchFactor(0, 1);
     ui->splitter->setStretchFactor(1, 4);
 
-    QShortcut* undo_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z), this);
+    auto* undo_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z), this);
     connect( undo_shortcut, &QShortcut::activated, this, &MainWindow::onUndoInvoked );
 
-    QShortcut* redo_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Z), this);
+    auto* redo_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Z), this);
     connect( redo_shortcut, &QShortcut::activated, this, &MainWindow::onRedoInvoked );
 
     connect( _editor_widget, &SidepanelEditor::nodeModelEdited,
@@ -139,13 +136,13 @@ MainWindow::MainWindow(GraphicMode initial_mode, QWidget *parent) :
             this, &MainWindow::onModelRemoveRequested);
 
     connect( _editor_widget, &SidepanelEditor::addSubtree,
-             this, [this](QString ID)
+             this, [this](const QString& ID)
     {
         this->createTab(ID);
     });
 
     connect( _editor_widget, &SidepanelEditor::renameSubtree,
-             this, [this](QString prev_ID, QString new_ID)
+             this, [this](const QString& prev_ID, const QString& new_ID)
     {
         if (prev_ID == new_ID)
             return;
@@ -373,7 +370,7 @@ void MainWindow::loadFromXML(const QString& xml_text)
         }
         auto models_to_remove = GetModelsToRemove(this, _treenode_models, custom_models);
 
-        for( QString model_name: models_to_remove )
+        for( const QString& model_name: models_to_remove )
         {
             onModelRemoveRequested(model_name);
         }
@@ -643,7 +640,7 @@ void MainWindow::on_actionSave_triggered()
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
-        stream << xml_text << endl;
+        stream << xml_text << Qt::endl;
     }
 
     directory_path = QFileInfo(fileName).absolutePath();
@@ -775,7 +772,7 @@ void MainWindow::onUndoInvoked()
 {
     if ( _current_mode != GraphicMode::EDITOR ) return; //locked
 
-    if( _undo_stack.size() > 0)
+    if( !_undo_stack.empty())
     {
         _redo_stack.push_back( std::move(_current_state) );
         _current_state = _undo_stack.back();
@@ -791,7 +788,7 @@ void MainWindow::onRedoInvoked()
 {
     if ( _current_mode != GraphicMode::EDITOR ) return; //locked
 
-    if( _redo_stack.size() > 0)
+    if( !_redo_stack.empty())
     {
         _undo_stack.push_back( _current_state );
         _current_state = std::move( _redo_stack.back() );
@@ -803,7 +800,7 @@ void MainWindow::onRedoInvoked()
     }
 }
 
-void MainWindow::loadSavedStateFromJson(SavedState saved_state)
+void MainWindow::loadSavedStateFromJson(const SavedState& saved_state)
 {
     // TODO crash if the name of the container (tab) changed
     for (auto& it: _tab_info)
@@ -849,7 +846,7 @@ void MainWindow::loadSavedStateFromJson(SavedState saved_state)
     onSceneChanged();
 }
 
-void MainWindow::onConnectionUpdate(bool connected)
+void MainWindow::onConnectionUpdate(bool connected) const
 {
     if(connected)
     {
@@ -927,7 +924,7 @@ void MainWindow::onDestroySubTree(const QString &ID)
             {
                 auto new_node = qt_node;
                 auto subtree_model = dynamic_cast<SubtreeNodeModel*>(bt_node);
-                if( subtree_model && subtree_model->expanded() == false )
+                if(subtree_model && !subtree_model->expanded())
                 {
                     new_node = subTreeExpand( *container, *qt_node,
                                              SubtreeExpandOption::SUBTREE_EXPAND );
@@ -960,7 +957,7 @@ void MainWindow::onDestroySubTree(const QString &ID)
     clearUndoStacks();
 }
 
-void MainWindow::onModelRemoveRequested(QString ID)
+void MainWindow::onModelRemoveRequested(const QString& ID)
 {
     BehaviorTreeDataModel* node_found = nullptr;
     QString tab_containing_node;
@@ -994,7 +991,7 @@ void MainWindow::onModelRemoveRequested(QString ID)
 
     NodeType node_type = _treenode_models.at(ID).type;
 
-    if( node_found && node_type != NodeType::SUBTREE )
+    if(node_type != NodeType::SUBTREE )
     {
         QMessageBox::warning(this, "Can't remove this Model",
                              QString( "You are using this model in the Tree called [%1].\n"
@@ -1038,7 +1035,7 @@ QtNodes::Node* MainWindow::subTreeExpand(GraphicContainer &container,
     auto subtree_model = dynamic_cast<SubtreeNodeModel*>(node.nodeDataModel());
     const QString& subtree_name = subtree_model->registrationName();
 
-    if( option == SUBTREE_EXPAND && subtree_model->expanded() == false)
+    if( option == SUBTREE_EXPAND && !subtree_model->expanded())
     {
         auto subtree_container = getTabByName(subtree_name);
         auto abs_subtree = BuildTreeFromScene( subtree_container->scene() );
@@ -1056,7 +1053,7 @@ QtNodes::Node* MainWindow::subTreeExpand(GraphicContainer &container,
         return &node;
     }
 
-    if( option == SUBTREE_COLLAPSE && subtree_model->expanded() == true)
+    if( option == SUBTREE_COLLAPSE && subtree_model->expanded())
     {
         bool need_reorder = true;
         const auto& conn_out = node.nodeState().connections(PortType::Out, 0 );
@@ -1086,7 +1083,7 @@ QtNodes::Node* MainWindow::subTreeExpand(GraphicContainer &container,
         return &node;
     }
 
-    if( option == SUBTREE_REFRESH && subtree_model->expanded() == true )
+    if( option == SUBTREE_REFRESH && subtree_model->expanded())
     {
         const auto& conn_out = node.nodeState().connections(PortType::Out, 0 );
         if(conn_out.size() != 1)
@@ -1161,7 +1158,7 @@ void MainWindow::on_actionClear_triggered()
     clearUndoStacks();
 }
 
-void MainWindow::onTreeNodeEdited(QString prev_ID, QString new_ID)
+void MainWindow::onTreeNodeEdited(const QString& prev_ID, const QString& new_ID)
 {
     for (auto& it: _tab_info)
     {
@@ -1393,7 +1390,7 @@ void MainWindow::on_actionMonitor_mode_triggered()
 #ifdef ZMQ_FOUND
     QMessageBox::StandardButton res = QMessageBox::Ok;
 
-    if( currentTabInfo()->scene()->nodes().size() > 0)
+    if( !currentTabInfo()->scene()->nodes().empty())
     {
         res = QMessageBox::warning(this, tr("Carefull!"),
                                    tr("If you switch to Monitor Mode, "
@@ -1414,7 +1411,7 @@ void MainWindow::on_actionReplay_mode_triggered()
 {
     QMessageBox::StandardButton res = QMessageBox::Ok;
 
-    if( currentTabInfo()->scene()->nodes().size() > 0)
+    if( !currentTabInfo()->scene()->nodes().empty())
     {
         res = QMessageBox::warning(this, tr("Carefull!"),
                                    tr("If you switch to Log Replay Mode, "
@@ -1477,7 +1474,7 @@ void MainWindow::resetTreeStyle(AbsBehaviorTree &tree){
     QtNodes::NodeStyle  node_style;
     QtNodes::ConnectionStyle conn_style;
 
-    for(auto abs_node: tree.nodes()){
+    for(const auto& abs_node: tree.nodes()){
         auto gui_node = abs_node.graphic_node;
 
         gui_node->nodeDataModel()->setNodeStyle( node_style );
@@ -1654,7 +1651,7 @@ const NodeModels &MainWindow::registeredModels() const
 void MainWindow::on_actionAbout_triggered()
 {
     auto ui = new Ui_Dialog;
-    QDialog* dialog = new QDialog(this);
+    auto* dialog = new QDialog(this);
     ui->setupUi(dialog);
 
     auto svg_widget = new QSvgWidget( tr(":/icons/svg/logo_splashscreen.svg") );

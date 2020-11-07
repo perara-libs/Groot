@@ -185,7 +185,7 @@ BT::NodeType BehaviorTreeDataModel::nodeType() const
 
 void BehaviorTreeDataModel::initWidget()
 {
-    if( _style_icon.isEmpty() == false )
+    if(!_style_icon.isEmpty())
     {
         _caption_logo_left->setFixedWidth( 20 );
         _caption_logo_right->setFixedWidth( 1 );
@@ -480,7 +480,7 @@ bool BehaviorTreeDataModel::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::Paint && obj == _caption_logo_left && _icon_renderer)
     {
         QPainter paint(_caption_logo_left);
-        _icon_renderer->render(&paint);
+        //_icon_renderer->render(&paint);
     }
     return NodeDataModel::eventFilter(obj, event);
 }

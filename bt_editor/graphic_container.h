@@ -5,14 +5,14 @@
 #include <QWidget>
 #include <QLineEdit>
 
-#include "bt_editor_base.h"
-#include "editor_flowscene.h"
-
 #include <nodes/Node>
 #include <nodes/NodeData>
 #include <nodes/FlowScene>
 #include <nodes/DataModelRegistry>
 #include <nodes/FlowView>
+
+#include "bt_editor_base.h"
+#include "editor_flowscene.h"
 
 class GraphicContainer : public QObject
 {
@@ -24,8 +24,8 @@ public:
     EditorFlowScene* scene() { return _scene; }
     QtNodes::FlowView*  view() { return _view; }
 
-    const EditorFlowScene* scene()  const{ return _scene; }
-    const QtNodes::FlowView* view() const { return _view; }
+    [[nodiscard]] const EditorFlowScene* scene()  const{ return _scene; }
+    [[nodiscard]] const QtNodes::FlowView* view() const { return _view; }
 
     void lockEditing(bool locked);
 
@@ -35,11 +35,9 @@ public:
 
     void zoomHomeView();
 
-    bool containsValidTree() const;
+    [[nodiscard]] bool containsValidTree() const;
 
     void clearScene();
-
-    AbsBehaviorTree loadedTree() const;
 
     void loadSceneFromTree(const AbsBehaviorTree &tree);
 

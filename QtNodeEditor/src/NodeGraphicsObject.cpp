@@ -33,40 +33,57 @@ NodeGraphicsObject(FlowScene &scene,
 {
   _scene.addItem(this);
 
-  setFlag(QGraphicsItem::ItemDoesntPropagateOpacityToChildren, true);
-  setFlag(QGraphicsItem::ItemIsMovable, true);
-  setFlag(QGraphicsItem::ItemIsFocusable, true);
-  setFlag(QGraphicsItem::ItemIsSelectable, true);
-  setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
 
-  setCacheMode( QGraphicsItem::DeviceCoordinateCache );
+  setFlags(
+    ItemIsMovable |
+    ItemDoesntPropagateOpacityToChildren |
+    ItemIsFocusable |
+    ItemIsSelectable |
+    ItemSendsScenePositionChanges
+  );
 
-  auto const &nodeStyle = node.nodeDataModel()->nodeStyle();
 
-  {
-    auto effect = new QGraphicsDropShadowEffect;
+    setCacheMode( QGraphicsItem::DeviceCoordinateCache );
+
+    auto const &nodeStyle = node.nodeDataModel()->nodeStyle();
+    auto effect = new QGraphicsDropShadowEffect();
     effect->setOffset(2, 2);
     effect->setBlurRadius(5);
     effect->setColor(nodeStyle.ShadowColor);
-
     setGraphicsEffect(effect);
-  }
-
-  setOpacity(nodeStyle.Opacity);
-
-  setAcceptHoverEvents(true);
-
-  setZValue(0);
-
-  updateEmbeddedQWidget();
-
+    setOpacity(nodeStyle.Opacity);
+    setAcceptHoverEvents(true);
+    setZValue(0);
+    updateEmbeddedQWidget();
 }
-
 
 NodeGraphicsObject::
 ~NodeGraphicsObject()
 {
   _scene.removeItem(this);
+}
+
+void
+NodeGraphicsObject::
+updateEmbeddedQWidget()
+{
+    NodeGeometry & geom = _node.nodeGeometry();
+
+    if(_proxyWidget){
+        _scene.removeItem(_proxyWidget);
+        _proxyWidget->deleteLater();
+    }
+
+    if (auto w = _node.nodeDataModel()->embeddedWidget()){
+        _proxyWidget = new QGraphicsProxyWidget(this);
+        _proxyWidget->setWidget(w);
+        _proxyWidget->setPreferredWidth(5);
+        geom.recalculateSize();
+        _proxyWidget->setPos(geom.widgetPosition());
+        update();
+        _proxyWidget->setOpacity(1.0);
+        _proxyWidget->setFlag(QGraphicsItem::ItemIgnoresParentOpacity);
+    }
 }
 
 
@@ -85,36 +102,7 @@ node() const
   return _node;
 }
 
-void
-NodeGraphicsObject::
-updateEmbeddedQWidget()
-{
-  NodeGeometry & geom = _node.nodeGeometry();
 
-  if( _proxyWidget )
-  {
-    _scene.removeItem(_proxyWidget);
-    _proxyWidget->deleteLater();
-  }
-
-  if (auto w = _node.nodeDataModel()->embeddedWidget())
-  {
-    _proxyWidget = new QGraphicsProxyWidget(this);
-
-    _proxyWidget->setWidget(w);
-
-    _proxyWidget->setPreferredWidth(5);
-
-    geom.recalculateSize();
-
-    _proxyWidget->setPos(geom.widgetPosition());
-
-    update();
-
-    _proxyWidget->setOpacity(1.0);
-    _proxyWidget->setFlag(QGraphicsItem::ItemIgnoresParentOpacity);
-  }
-}
 
 
 QRectF
@@ -165,8 +153,10 @@ void
 NodeGraphicsObject::
 paint(QPainter * painter,
       QStyleOptionGraphicsItem const* option,
-      QWidget* )
+      QWidget* widget)
 {
+    Q_UNUSED(widget);
+
   painter->setClipRect(option->exposedRect);
   NodePainter::paint(painter, _node, _scene);
 }
