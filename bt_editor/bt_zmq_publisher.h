@@ -39,7 +39,7 @@ class CustomPublisherZMQ : public StatusChangeLogger
 
     TimePoint deadline_;
     std::mutex mutex_;
-    std::atomic_bool send_pending_ = false;
+    std::atomic_bool send_pending_;
 
     std::future<void> send_future_;
 
