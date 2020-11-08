@@ -27,6 +27,7 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
 
 QPixmap BehaviorTreeDataModel::loadIcon(){
     // Load the icon
+<<<<<<< HEAD
     QSvgRenderer svgRenderer(_style_icon);
     QPixmap pix(svgRenderer.defaultSize());
     pix.fill( Qt::transparent );
@@ -38,6 +39,25 @@ QPixmap BehaviorTreeDataModel::loadIcon(){
     pixPainter.fillRect(pix.rect(), _style_caption_color);
 
     return pix.scaled(24, 24);
+=======
+    if(!_style_icon.isEmpty()){
+        QSvgRenderer svgRenderer(_style_icon);
+
+        QPixmap pix(svgRenderer.defaultSize());
+        pix.fill( Qt::transparent );
+        pix.setMask( pix.createMaskFromColor(_style_caption_color ) );
+        QPainter pixPainter( &pix );
+        svgRenderer.render( &pixPainter );
+
+        pixPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        pixPainter.fillRect(pix.rect(), _style_caption_color);
+        this->_nodeStyle.FontColor = _style_caption_color;
+        this->_nodeStyle.LeftIcon = pix.scaled(24, 24);
+    }
+
+
+
+>>>>>>> 3e4e51020116aadfe8177d2bddccc12cec634fc2
 }
 
 
