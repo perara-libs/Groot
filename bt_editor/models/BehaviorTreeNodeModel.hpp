@@ -28,13 +28,11 @@ class BehaviorTreeDataModel : public NodeDataModel
 
 public:
     explicit BehaviorTreeDataModel(const NodeModel &model );
-
     ~BehaviorTreeDataModel() override;
 
 public:
 
     [[nodiscard]] NodeType nodeType() const;
-
     virtual void setInstanceName(const QString& name);
 
 public:
@@ -61,9 +59,7 @@ public:
 
     [[nodiscard]] PortsMapping getCurrentPortMapping() const;
 
-    QWidget *embeddedWidget() final { return _main_widget; }
 
-    QWidget *parametersWidget() { return _params_widget; }
 
     [[nodiscard]] QJsonObject save() const override;
 
@@ -88,50 +84,23 @@ protected:
 
     void loadInteractive();
 
-    QFrame*  _main_widget;
-    QFrame*  _params_widget;
-
-    QLineEdit* _line_edit_name;
-
-    std::map<QString, QWidget*> _ports_widgets;
+    QString _instance_name;
     int16_t _uid;
-
-    QFormLayout* _form_layout;
-    QVBoxLayout* _main_layout;
-    QLabel* _caption_label;
-    QFrame* _caption_logo_left;
-    QFrame* _caption_logo_right;
+    QColor  _style_caption_color;
+    QString _style_icon;
+    QString  _style_caption_alias;
 
 private:
     const NodeModel _model;
-    QString _instance_name;
-    QSvgRenderer* _icon_renderer;
 
     void readStyle();
-    QString _style_icon;
-    QColor  _style_caption_color;
-    QString  _style_caption_alias;
+
 
 signals:
-
     void parameterUpdated(QString, QWidget*);
     void instanceNameChanged();
     void portValueDoubleChicked(QLineEdit* value_port);
 
 
+    QPixmap loadIcon();
 };
-
-
-class GrootLineEdit: public QLineEdit
-{
-    Q_OBJECT
-public:
-    explicit GrootLineEdit(QWidget* parent = nullptr): QLineEdit(parent) {}
-
-    void mouseDoubleClickEvent(QMouseEvent *ev) override;
-    void focusOutEvent(QFocusEvent* ev) override;
-signals:
-    void doubleClicked();
-    void lostFocus();
-};
-

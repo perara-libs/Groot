@@ -28,7 +28,7 @@ CustomPublisherZMQ::CustomPublisherZMQ(
                            unsigned server_port)
   : StatusChangeLogger()
   , tree_(NULL)
-  , min_time_between_msgs_(std::chrono::microseconds(1000 * 1000) / max_msg_per_second)
+  , min_time_between_msgs_(std::chrono::milliseconds(max_msg_per_second))
   , send_pending_(false)
   , zmq_(new Pimpl())
 {
@@ -140,11 +140,12 @@ void CustomPublisherZMQ::callback(Duration timestamp, const TreeNode& node, Node
 
     if (!send_pending_)
     {
-        send_pending_ = true;
+        
         send_future_ = std::async(std::launch::async, [this]() {
             std::this_thread::sleep_for(min_time_between_msgs_);
             flush();
         });
+
     }
 
 }
@@ -182,5 +183,5 @@ void CustomPublisherZMQ::flush()
 
     zmq_->publisher.send(message, 0);
     send_pending_ = false;
-    // printf("%.3f zmq send\n", std::chrono::duration<double>( std::chrono::high_resolution_clock::now().time_since_epoch() ).count());
+    //printf("%.3f zmq send\n", std::chrono::duration<double>( std::chrono::high_resolution_clock::now().time_since_epoch() ).count());
 }

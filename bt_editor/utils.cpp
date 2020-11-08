@@ -455,9 +455,19 @@ BuildTreeFromFlatbuffers(const Serialization::BehaviorTree *fb_behavior_tree)
     return { tree, uid_to_index };
 }
 
-std::pair<QtNodes::NodeStyle, QtNodes::ConnectionStyle>
-getStyleFromStatus(NodeStatus status, NodeStatus prev_status)
+
+std::map<std::pair<NodeStatus, NodeStatus>, std::pair<QtNodes::NodeStyle, QtNodes::ConnectionStyle>> _styleCache;
+int cache_count = 0;
+std::pair<QtNodes::NodeStyle, QtNodes::ConnectionStyle> getStyleFromStatus(NodeStatus status, NodeStatus prev_status)
 {
+    // Use cache
+    auto statusPair = std::make_pair(status, prev_status);
+    if (_styleCache.find(statusPair) != _styleCache.end()) {
+        std::cout << cache_count++ << std::endl;
+        return _styleCache.at(statusPair);
+    }
+
+
     QtNodes::NodeStyle  node_style;
     QtNodes::ConnectionStyle conn_style;
 
@@ -519,7 +529,10 @@ getStyleFromStatus(NodeStatus status, NodeStatus prev_status)
         conn_style.NormalColor = node_style.NormalBoundaryColor;
     }
 
-    return {node_style, conn_style};
+
+    // Insert into cache
+    _styleCache[statusPair] = { node_style, conn_style };
+    return  _styleCache[statusPair];
 }
 
 QtNodes::Node *GetParentNode(QtNodes::Node *node)

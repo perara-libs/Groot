@@ -13,7 +13,7 @@ class CustomPublisherZMQ : public StatusChangeLogger
 
   public:
     CustomPublisherZMQ(
-                 unsigned max_msg_per_second = 25,
+                 unsigned max_msg_per_second = 100,
                  unsigned publisher_port = 1666,
                  unsigned server_port = 1667);
 
@@ -30,7 +30,7 @@ class CustomPublisherZMQ : public StatusChangeLogger
     std::vector<uint8_t> tree_buffer_;
     std::vector<uint8_t> status_buffer_;
     std::vector<SerializedTransition> transition_buffer_;
-    std::chrono::microseconds min_time_between_msgs_;
+    std::chrono::milliseconds min_time_between_msgs_;
 
     std::atomic_bool active_server_;
     std::thread thread_;
@@ -39,7 +39,7 @@ class CustomPublisherZMQ : public StatusChangeLogger
 
     TimePoint deadline_;
     std::mutex mutex_;
-    std::atomic_bool send_pending_;
+    std::atomic_bool send_pending_ = false;
 
     std::future<void> send_future_;
 

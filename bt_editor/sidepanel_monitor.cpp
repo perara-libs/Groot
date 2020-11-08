@@ -42,10 +42,10 @@ void SidepanelMonitor::on_timer()
         while(  _zmq_subscriber.recv(&msg) )
         {
             _msg_count++;
-            ui->labelCount->setText( QString("Messages received: %1").arg(_msg_count) );
+            //ui->labelCount->setText( QString("Messages received: %1").arg(_msg_count) );
 
             const char* buffer = reinterpret_cast<const char*>(msg.data());
-
+            //qDebug() << msg.size();
             const uint32_t header_size = flatbuffers::ReadScalar<uint32_t>( buffer );
             const uint32_t num_transitions = flatbuffers::ReadScalar<uint32_t>( &buffer[4+header_size] );
             
@@ -77,13 +77,8 @@ void SidepanelMonitor::on_timer()
                 for(size_t t=0; t < num_transitions; t++)
                 {
                     size_t offset = 8 + header_size + 12*t;
-
-                    // const double t_sec  = flatbuffers::ReadScalar<uint32_t>( &buffer[offset] );
-                    // const double t_usec = flatbuffers::ReadScalar<uint32_t>( &buffer[offset+4] );
-                    // double timestamp = t_sec + t_usec* 0.000001;
                     const uint16_t uid = flatbuffers::ReadScalar<uint16_t>(&buffer[offset+8]);
                     const uint16_t index = _uid_to_index.at(uid);
-                    // NodeStatus prev_status = convert(flatbuffers::ReadScalar<Serialization::NodeStatus>(&buffer[index+10] ));
                     NodeStatus status  = convert(flatbuffers::ReadScalar<Serialization::NodeStatus>(&buffer[offset+11] ));
 
                     _loaded_tree.node(index)->status = status;
@@ -219,7 +214,7 @@ void SidepanelMonitor::on_Connect()
     if (tryConnect() && getTreeFromServer()){
         ui->lineEdit->setDisabled(true);
         ui->lineEdit_publisher->setDisabled(true);
-        _timer->start(20);
+        _timer->start();
         connectionUpdate(true);
     }
     else {

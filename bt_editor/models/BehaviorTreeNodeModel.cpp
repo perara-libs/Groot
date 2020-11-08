@@ -13,18 +13,21 @@ const int DEFAULT_FIELD_WIDTH = 50;
 const int DEFAULT_LABEL_WIDTH = 50;
 
 BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
-    _params_widget(nullptr),
     _uid(GetUID()),
     _model(model),
-    _icon_renderer(nullptr),
     _style_caption_color( QtNodes::NodeStyle().FontColor ),
     _style_caption_alias( model.registration_ID )
 {
     loadInteractive();
+    this->_nodeStyle.LeftIcon = loadIcon();
 
+
+
+}
+
+QPixmap BehaviorTreeDataModel::loadIcon(){
     // Load the icon
     QSvgRenderer svgRenderer(_style_icon);
-
     QPixmap pix(svgRenderer.defaultSize());
     pix.fill( Qt::transparent );
     pix.setMask( pix.createMaskFromColor(_style_caption_color ) );
@@ -34,69 +37,23 @@ BehaviorTreeDataModel::BehaviorTreeDataModel(const NodeModel &model):
     pixPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
     pixPainter.fillRect(pix.rect(), _style_caption_color);
 
-    this->_nodeStyle.LeftIcon = pix.scaled(24, 24);
-
-
+    return pix.scaled(24, 24);
 }
 
 
 void BehaviorTreeDataModel::loadInteractive(){
     readStyle();
 
-    _main_widget = new QFrame();
-    _line_edit_name = new QLineEdit(_main_widget);
 
-    _params_widget = new QFrame();
 
-    _main_layout = new QVBoxLayout(_main_widget);
-    _main_widget->setLayout( _main_layout );
 
-    auto capt_layout = new QHBoxLayout();
-
-    _caption_label = new QLabel();
-    _caption_logo_left  = new QFrame();
-    _caption_logo_right = new QFrame();
-    _caption_logo_left->setFixedSize( QSize(0,20) );
-    _caption_logo_right->setFixedSize( QSize(0,20) );
-    _caption_label->setFixedHeight(20);
-
-    _caption_logo_left->installEventFilter(this);
-
-    QFont capt_font = _caption_label->font();
-    capt_font.setPointSize(12);
-    _caption_label->setFont(capt_font);
-
-    capt_layout->addWidget(_caption_logo_left, 0, Qt::AlignRight);
-    capt_layout->addWidget(_caption_label, 0, Qt::AlignHCenter );
-    capt_layout->addWidget(_caption_logo_right, 0, Qt::AlignLeft);
-
-    _main_layout->addLayout( capt_layout );
-    _main_layout->addWidget( _line_edit_name );
-
-    _main_layout->setMargin(0);
-    _main_layout->setSpacing(2);
-
-    //----------------------------
-    _line_edit_name->setAlignment( Qt::AlignCenter );
     _line_edit_name->setText( _instance_name );
-    _line_edit_name->setFixedWidth( DEFAULT_LINE_WIDTH );
 
-    _main_widget->setAttribute(Qt::WA_NoSystemBackground);
-
-    _line_edit_name->setStyleSheet("color: white; "
-                                   "background-color: transparent;"
-                                   "border: 0px;");
 
     //--------------------------------------
-    _form_layout = new QFormLayout( _params_widget );
-    _form_layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    //_main_layout->addWidget(_params_widget);
-    _params_widget->setStyleSheet("color: white;");
 
-    _form_layout->setHorizontalSpacing(4);
-    _form_layout->setVerticalSpacing(2);
-    _form_layout->setContentsMargins(0, 0, 0, 0);
+
 
     PortDirection preferred_port_types[3] = { PortDirection::INPUT,
                                               PortDirection::OUTPUT,
@@ -213,36 +170,6 @@ BT::NodeType BehaviorTreeDataModel::nodeType() const
 
 void BehaviorTreeDataModel::initWidget()
 {
-    if(!_style_icon.isEmpty())
-    {
-        _caption_logo_left->setFixedWidth( 20 );
-        _caption_logo_right->setFixedWidth( 1 );
-
-        QFile file(_style_icon);
-        if(!file.open(QIODevice::ReadOnly))
-        {
-            qDebug()<<"file not opened: "<< _style_icon;
-            file.close();
-        }
-        else {
-            QByteArray ba = file.readAll();
-            QByteArray new_color_fill = QString("fill:%1;").arg( _style_caption_color.name() ).toUtf8();
-            ba.replace("fill:#ffffff;", new_color_fill);
-            _icon_renderer =  new QSvgRenderer(ba, this);
-        }
-    }
-
-    _caption_label->setText( _style_caption_alias );
-
-    QPalette capt_palette = _caption_label->palette();
-    capt_palette.setColor(_caption_label->backgroundRole(), Qt::transparent);
-    capt_palette.setColor(_caption_label->foregroundRole(), _style_caption_color);
-    _caption_label->setPalette(capt_palette);
-
-    _caption_logo_left->adjustSize();
-    _caption_logo_right->adjustSize();
-    _caption_label->adjustSize();
-
     updateNodeSize();
 }
 
